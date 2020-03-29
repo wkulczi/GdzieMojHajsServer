@@ -12,4 +12,7 @@ before_install:
 - chmod 600 ./deploy_key
 - echo -e "Host $SERVER_IP_ADDRESS\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_key
+
+after success:
 - ssh -o StrictHostKeyChecking=no -i ./deploy_key $USR@$IP
+- touch hello.txt
