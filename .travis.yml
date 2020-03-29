@@ -6,8 +6,7 @@ install:
 script:
 - pytest
 before_install:
-- openssl aes-256-cbc -K $encrypted_f217180e22ee_key -iv $encrypted_f217180e22ee_iv
-  -in .travis/id_rsa.enc -out id_rsa -d
+- openssl aes-256-cbc -md sha512 -pbkdf2 -iter 1000 -nosalt -d -in .travis/serv_key.enc -out ./id_rsa -k $SHA_KEY
 - ssh-add id_rsa
 
 
