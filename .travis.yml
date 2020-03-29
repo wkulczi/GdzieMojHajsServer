@@ -6,7 +6,7 @@ install:
 script:
 - pytest
 before_install:
-- openssl aes-256-cbc -md sha512 -camelia-128-cfb -iter 1000 -nosalt -d -in .travis/skey.enc -out ./id_rsa -k $SHA_KEY
+- openssl aes-256-cbc -md sha512 -camellia-128-cfb -iter 1000 -nosalt -d -in .travis/skey.enc -out ./id_rsa -k $SHA_KEY
 - ssh-add id_rsa
 
 
