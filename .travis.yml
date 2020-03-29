@@ -8,8 +8,7 @@ script:
 - pytest
 before_install:
 - openssl aes-256-cbc -md sha512 -camellia-128-cfb -iter 1000 -nosalt -d -in .travis/skey.enc -out ./id_rsa -k $SHA_KEY
-- ssh-agent /bin/sh
-- ssh-add id_rsa
+- ssh-agent /bin/sh > ssh-add id_rsa
 
 
 - eval "$(ssh-agent -s)"
