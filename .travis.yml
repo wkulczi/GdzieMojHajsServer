@@ -7,7 +7,7 @@ install:
 script:
 - pytest
 before_install:
-- openssl aes-256-cbc -md sha512 -camellia-128-cfb -iter 1000 -nosalt -d -in .travis/skey.enc -out ./deploy_key -k $SHA_KEY
+- openssl aes-256-cbc -md sha512 -camellia-256-ecb -iter 1000 -nosalt -in .travis/skey.enc -d -out ./deploy_key -k $SHA_KEY
 - eval "$(ssh-agent -s)"
 - chmod 600 ./deploy_key
 - echo -e "Host $SERVER_IP_ADDRESS\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
