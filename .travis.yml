@@ -16,5 +16,3 @@ before_install:
 deploy:
 	provider: script
 	script : bash -s .script.sh
-	on:
-          branch: develop
