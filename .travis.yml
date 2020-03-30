@@ -6,13 +6,13 @@ install:
 - pip install -r requirements.txt
 script:
 - pytest
-before_script:
+before_deploy:
 - openssl aes-256-cbc -md sha512 -camellia-256-ecb -iter 1000 -nosalt -in .travis/skey.enc -d -out ./deploy_key -k $SHA_KEY
 - eval "$(ssh-agent -s)"
 - chmod 600 ./deploy_key
 - echo -e "Host $SERVER_IP_ADDRESS\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_key
 
-script:
+deploy:
 - provider: script
-  script : bash -s .script.sh
+  script: bash -s .script.sh
