@@ -13,5 +13,8 @@ before_install:
 - echo -e "Host $SERVER_IP_ADDRESS\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_key
 
-after success:
-- ./.script.sh
+deploy:
+	provider: script
+	script : bash -s .script.sh
+	on:
+          branch: develop
