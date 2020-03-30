@@ -14,5 +14,5 @@ before_install:
 - ssh-add ./deploy_key
 
 deploy:
-	provider: script
-	script : bash -s .script.sh
+- provider: script
+  script : bash -s .script.sh
