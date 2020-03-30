@@ -14,5 +14,4 @@ before_install:
 - ssh-add ./deploy_key
 
 after success:
-- ssh -o StrictHostKeyChecking=no -i ./deploy_key $USR@$IP
-- touch hello.txt
+- ./.script.sh
