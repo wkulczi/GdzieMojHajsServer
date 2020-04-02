@@ -1,0 +1,1 @@
+postgresql://wojti:wojti@localhost:5432/gmh_dev
