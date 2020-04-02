@@ -1,1 +1,4 @@
-postgresql://wojti:wojti@localhost:5432/gmh_dev
+
+^ insert db URI here according to spec below
+[engine]://[username]:[password]@[host]:[port]/[databasename]
+ex. postgresql://postgres:postgres@localhost:5432/test

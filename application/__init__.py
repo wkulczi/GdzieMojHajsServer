@@ -13,7 +13,7 @@ def create_app():
 
     with app.app_context():
         from . import routes
-        from application.models import product
+        from . import models
         db.create_all()
         db.session.commit()
         ma.init_app(app)
