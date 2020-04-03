@@ -1,7 +1,8 @@
 from flask import current_app as app
 
-from application import db
-import application.models as models
+from application.controllers.user_controller import *
+from application.controllers.receipt_controller import *
+
 
 @app.route('/')
 def say_hello():
@@ -9,8 +10,8 @@ def say_hello():
 
 @app.route('/user')
 def show_user():
-    user_schema = models.UserSchema()
-    user = models.User(login="Wojti", password="pansoltys")
-    db.session.add(user)
-    db.session.commit()
-    return user_schema.dump(user)
+    return test_addUser()
+
+@app.route('/receipt')
+def fake_show_receipt():
+    return new_receipt()
