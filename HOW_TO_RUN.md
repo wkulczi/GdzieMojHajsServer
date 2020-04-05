@@ -1,15 +1,29 @@
 ### Jak uruchomić serwer GdzieMójHajs
 
-##### 1. Linux (albo WSL)
+###### 1.1 Konfiguracja bazy danych
+- zainstaluj postgresql [tutorial linux](https://tecadmin.net/install-postgresql-server-on-ubuntu/)/[dl link Win](https://www.postgresql.org/download/windows/)
+- uruchom psql
+- utwórz bazę danych (`CREATE DATABASE nazwa;`) 
+- ustaw hasło do użytkownika psql (będąc w konsoli psql: `\password <hasło>`) [tylko linux, win ma defaultowe 'postgres']
 
-- zainstaluj postgresql [tutorial](https://tecadmin.net/install-postgresql-server-on-ubuntu/)
-- utwórz bazę danych (`CREATE DATABASE nazwa;`)
-- ustaw hasło do użytkownika psql (będąc w konsoli psql: `\password <hasło>`)
-- w pierwszej linii pliku `db_uri.txt` umieść adres do swojej bazy danych (tutorial inside, MUSI być jako pierwsza linia)
-- uruchom `dev_unix_script.sh`i powinno wszystko śmigać
+###### 1.2 Konfiguracja PyCharma
+- dodaj nowy interpreter (venv)
+- kliknij w plik `requirements'
+- pobierz paczki z requirements, `pip install -r requirements.txt` (albo zainstaluj plugin 'requirements' i kliknij żeby sam pobrał)
+- wejdź w edycję ustawień (Run/Debug Configurations)
+- znajdź sekcję environment i kliknij w tym okienku tę małą ikonkę
+![](https://i.ibb.co/ByPFwKP/Adnotacja-2020-04-04-111958.png)
+- dodaj zmienne środowiskowe 
+![](https://i.ibb.co/d0znpyb/Adnotacja-2020-04-04-112316.png)
 
-##### 2. Windows
-- no fucking idea (yet!)
+`export FLASK_APP=app.py;`
+`export FLASK_DEBUG=1;`
+`export SQLALCHEMY_DATABASE_URI=` _URL BAZY DANYCH_*
+`export SQLALCHEMY_TRACK_MODIFICATIONS=True;`
+
+*url bazy danych musi wyglądać w taki sposób
+`[engine]://[username]:[password]@[host]:[port]/[databasename]`
+czyli np. postgresql://postgres:postgres@localhost:5432/test
 
 
 
@@ -35,6 +49,8 @@ GMH
 `-- 
 ```
 
+
+Koncepcja taka, że nie wrzucamy venv na gita tylko w razie czego aktualizujemy requirements.txt
 
 Testy jak na razie wystarczy odpalić komendą `pytest`, powinna być zainstalowana w venv.
 
