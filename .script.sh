@@ -3,5 +3,5 @@ pkill gunicorn;
 cd wkulczi/GdzieMojHajsServer/;
 git pull -q;
 source venv/bin/activate; nohup gunicorn3 app:app &
-return 0;
+exit 0;
 EOF
