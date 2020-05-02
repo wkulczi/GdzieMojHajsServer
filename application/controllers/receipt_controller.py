@@ -1,4 +1,4 @@
-from flask import Response, json
+from flask import json, Response
 from marshmallow import EXCLUDE
 
 import application.models as models
@@ -29,10 +29,9 @@ class ReceiptController:
                 session.add(receipt)
                 session.commit()
 
-            resp = json.dumps({'response':"Adding Successful."}), 200, {'ContentType':'application/json'}
+            resp = Response("{'response':'Adding Successful.'}", status=200, mimetype='application/json')
         except:
-            resp = json.dumps({'response':"Receipt adding error."}), 501, {'ContentType':'application/json'}
-
+            resp = Response("{'response':'Receipt adding error.'}", status=501, mimetype='application/json')
         return resp
 
 # Read
