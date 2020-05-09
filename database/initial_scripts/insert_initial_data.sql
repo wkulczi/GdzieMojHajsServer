@@ -1,31 +1,52 @@
-INSERT INTO uzytkownik (login, password, question, answer, role) VALUES
+INSERT INTO "user" (login, password, question, answer, role) VALUES
 ('test', 'test', 'Jaki jest login?', 'test', 'admin'),
 ('magda', 'gessler', 'Jaki jest login?', 'test', 'user');
 
-INSERT INTO produkt (nazwa, cena) VALUES
+INSERT INTO product (name, price) VALUES
 ('bagieta czosnkowa', 2.50),
 ('czipsy', 5.53),
 ('pyndzel', 5.37);
 
-INSERT INTO kategoria (kod_pkd, nazwa_kategorii) VALUES
+INSERT INTO category (pkd_code, name) VALUES
 (1,'spozywcze'),
 (2,'budowlane'),
 (3,'muzyczne');
 
-INSERT INTO firma (id_kategorii, nazwa) VALUES
-(1,'biedra'),
-(1,'lidl'),
+INSERT INTO company (category_id, name) VALUES
+(1,'Warzywniak'),
+(1,'Spozywczak'),
 (2,'leroj merlin');
 
-INSERT INTO paragon (id_uzytkownika, id_firmy) VALUES
+INSERT INTO receipt (user_id, company_id) VALUES
 (1,1),
+(1,2),
+(1,2),
+(1,2),
+(1,2),
+(1,2),
+(1,2),
+(1,2),
+(1,2),
+(1,2),
+(1,2),
 (1,2),
 (2,3);
 
-INSERT INTO paragon_produkt (id_paragonu, id_produktu, ilosc) VALUES
+INSERT INTO receipt_product (receipt_id, product_id, quantity) VALUES
 (1,1,2),
 (1,2,5),
-(3,3,2);
+(2,3,2),
+(3,3,2),
+(4,3,2),
+(5,3,2),
+(6,3,2),
+(7,3,2),
+(8,3,2),
+(9,3,2),
+(10,3,2),
+(11,3,2),
+(12,3,2),
+(13,3,2);
 
 
 

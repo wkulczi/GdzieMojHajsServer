@@ -5,10 +5,10 @@ from sqlalchemy.orm import sessionmaker, relationship
 Base = declarative_base()
 
 
-class Uzytkownik(Base):
-    __tablename__ = 'uzytkownik'
+class User(Base):
+    __tablename__ = 'user'
 
-    id_uzytkownika = Column(Integer, primary_key=True)
+    user_id = Column(Integer, primary_key=True)
     login = Column(String)
     password = Column(String)
     question = Column(String)
@@ -16,51 +16,74 @@ class Uzytkownik(Base):
     role = Column(String)
 
     def __repr__(self):
-        return "<uzytkownik(id_uzytkownika='%s', login='%s', password='%s', question='%s', answer='%s')>" % (
-            self.id_uzytkownika, self.login, self.password, self.question, self.answer)
+        return "<user(user_id='%s', login='%s', password='%s', question='%s', answer='%s')>" % (
+            self.user_id, self.login, self.password, self.question, self.answer)
 
 
-class Paragon(Base):
-    __tablename__ = 'paragon'
+class Receipt(Base):
+    __tablename__ = 'receipt'
 
-    id_paragonu = Column(Integer, primary_key=True)
-    id_uzytkownika = Column(Integer)
-    id_firmy = Column(Integer)
+    receipt_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
+    company_id = Column(Integer)
 
-
-class Firma(Base):
-    __tablename__ = 'firma'
-
-    id_firmy = Column(Integer, primary_key=True)
-    id_kategorii = Column(Integer)
-    nazwa = Column(String)
+    def __repr__(self):
+        return "<receipt(receipt_id='%s', user_id='%s', company_id'%s')>" % (
+            self.receipt_id, self.user_id, self.company_id)
 
 
-class Paragon_produkt(Base):
-    __tablename__ = 'paragon_produkt'
+class Company(Base):
+    __tablename__ = 'company'
+
+    company_id = Column(Integer, primary_key=True)
+    category_id = Column(Integer)
+    name = Column(String)
+
+    def __repr__(self):
+        return "<company(company_id='%s', category_id='%s', name'%s')>" % (
+            self.company_id, self.category_id, self.name)
+
+    def __json__(self):
+        pass
+
+
+class ReceiptProduct(Base):
+    __tablename__ = 'receipt_product'
     __table_args__ = (
-        PrimaryKeyConstraint('id_paragonu', 'id_produktu'),
+        PrimaryKeyConstraint('receipt_id', 'product_id'),
     )
 
-    id_paragonu = Column(Integer, primary_key=True)
-    id_produktu = Column(Integer, primary_key=True)
-    ilosc = Column(Integer)
+    receipt_id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, primary_key=True)
+    quantity = Column(Integer)
+
+    def __repr__(self):
+        return "<receipt_product(receipt_id='%s', product_id='%s', quantity'%s')>" % (
+            self.receipt_id, self.product_id, self.quantity)
 
 
-class Produkt(Base):
-    __tablename__ = 'produkt'
+class Product(Base):
+    __tablename__ = 'product'
 
-    id_produktu = Column(Integer, primary_key=True)
-    nazwa = Column(String)
-    cena = Column(Float)
+    product_id = Column(Integer, primary_key=True)
+    name = Column(String)
+    price = Column(Float)
+
+    def __repr__(self):
+        return "<product(product_id='%s', name='%s', price'%s')>" % (
+            self.product_id, self.name, self.price)
 
 
-class Kategoria(Base):
-    __tablename__ = 'kategoria'
+class Category(Base):
+    __tablename__ = 'category'
 
-    id_kategorii = Column(Integer, primary_key=True)
-    kod_pkd = Column(String)
-    nazwa_kategorii = Column(String)
+    category_id = Column(Integer, primary_key=True)
+    pkd_code = Column(String)
+    name = Column(String)
+
+    def __repr__(self):
+        return "<category(category_id='%s', pkd_code='%s', name'%s')>" % (
+            self.category_id, self.pkd_code, self.name)
 
 
 engine = create_engine('postgresql://magda:gessler@localhost:5432/GdzieMojHajsDB')

@@ -1,5 +1,5 @@
-CREATE TABLE "uzytkownik" (
-  "id_uzytkownika" serial PRIMARY KEY,
+CREATE TABLE "user" (
+  "user_id" serial PRIMARY KEY,
   "login" varchar,
   "password" varchar,
   "question" varchar,
@@ -7,41 +7,41 @@ CREATE TABLE "uzytkownik" (
   "role" varchar
 );
  
-CREATE TABLE "paragon" (
-  "id_paragonu" serial PRIMARY KEY,
-  "id_uzytkownika" int,
-  "id_firmy" int
+CREATE TABLE "receipt" (
+  "receipt_id" serial PRIMARY KEY,
+  "user_id" int,
+  "company_id" int
 );
 
-CREATE TABLE "firma" (
-  "id_firmy" serial PRIMARY KEY,
-  "id_kategorii" int,
-  "nazwa" varchar
+CREATE TABLE "company" (
+  "company_id" serial PRIMARY KEY,
+  "category_id" int,
+  "name" varchar
 );
 
-CREATE TABLE "paragon_produkt" (
-  "id_paragonu" int,
-  "id_produktu" int,
-  "ilosc" int,
-  PRIMARY KEY ("id_paragonu", "id_produktu")
+CREATE TABLE "receipt_product" (
+  "receipt_id" int,
+  "product_id" int,
+  "quantity" int,
+  PRIMARY KEY ("receipt_id", "product_id")
 );
 
-CREATE TABLE "produkt" (
-  "id_produktu" serial PRIMARY KEY,
-  "nazwa" varchar,
-  "cena" float
+CREATE TABLE "product" (
+  "product_id" serial PRIMARY KEY,
+  "name" varchar,
+  "price" float
 );
 
-CREATE TABLE "kategoria" (
-  "id_kategorii" serial PRIMARY KEY,
-  "kod_pkd" varchar,
-  "nazwa_kategorii" varchar
+CREATE TABLE "category" (
+  "category_id" serial PRIMARY KEY,
+  "pkd_code" varchar,
+  "name" varchar
 );
 
-ALTER TABLE "paragon" ADD FOREIGN KEY ("id_uzytkownika") REFERENCES "uzytkownik" ("id_uzytkownika");
+ALTER TABLE "receipt" ADD FOREIGN KEY ("user_id") REFERENCES "user" ("user_id");
 
-ALTER TABLE "paragon_produkt" ADD FOREIGN KEY ("id_paragonu") REFERENCES "paragon" ("id_paragonu");
+ALTER TABLE "receipt_product" ADD FOREIGN KEY ("receipt_id") REFERENCES "receipt" ("receipt_id");
 
-ALTER TABLE "paragon" ADD FOREIGN KEY ("id_firmy") REFERENCES "firma" ("id_firmy");
+ALTER TABLE "receipt" ADD FOREIGN KEY ("company_id") REFERENCES "company" ("company_id");
 
-ALTER TABLE "paragon_produkt" ADD FOREIGN KEY ("id_produktu") REFERENCES "produkt" ("id_produktu");
+ALTER TABLE "receipt_product" ADD FOREIGN KEY ("product_id") REFERENCES "product" ("product_id");

@@ -30,8 +30,8 @@ class Receipt(db.Model):
     # todo add  nullable=False when company will be ready
     company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=True)
 
-    # [RELATIONSHIP] one to many w/ ReceiptProduct
-    ReceiptProducts = db.relationship('ReceiptProduct', backref='product', lazy=True, post_update=True)
+    # [RELATIONSHIP] one to many w/ receipt_product
+    receipt_products = db.relationship('receipt_product', backref='product', lazy=True, post_update=True)
 
 
 class Product(db.Model):
@@ -41,11 +41,11 @@ class Product(db.Model):
     name = db.Column(db.String(250), nullable=False)
     price = db.Column(db.Float, nullable=False)
 
-    # [RELATIONSHIP] one to many w/ ReceiptProduct
-    ReceiptProducts = db.relationship('ReceiptProduct', lazy=True, post_update=True)
+    # [RELATIONSHIP] one to many w/ receipt_product
+    receipt_products = db.relationship('receipt_product', lazy=True, post_update=True)
 
 
-class ReceiptProduct(db.Model):
+class receipt_product(db.Model):
     __table_args__ = {'extend_existing': True}
     receipt_id = db.Column(db.Integer, db.ForeignKey('receipt.id'), primary_key=True,
                            nullable=False)  # many to one with receipt
@@ -136,9 +136,9 @@ class CompanySchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
 
 
-class ReceiptProductSchema(ma.SQLAlchemyAutoSchema):
+class receipt_productSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = ReceiptProduct
+        model = receipt_product
         include_relationships = True
         load_instance = True
 

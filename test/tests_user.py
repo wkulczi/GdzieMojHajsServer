@@ -38,10 +38,10 @@ class TestRegister(unittest.TestCase):
         assert request_result.status_code == 201
 
         session = db_model.Session()
-        user_found = session.query(db_model.Uzytkownik).filter_by(login=user_invalid["login"],
-                                                                  password=user_invalid["password"],
-                                                                  question=user_invalid["question"],
-                                                                  answer=user_invalid["answer"]).first()
+        user_found = session.query(db_model.User).filter_by(login=user_invalid["login"],
+                                                            password=user_invalid["password"],
+                                                            question=user_invalid["question"],
+                                                            answer=user_invalid["answer"]).first()
         assert user_found is not None
         session.delete(user_found)
         session.commit()
@@ -54,10 +54,10 @@ class TestRegister(unittest.TestCase):
         assert request_result.status_code == 406
 
         session = db_model.Session()
-        user_found = session.query(db_model.Uzytkownik).filter_by(login=user_valid["login"],
-                                                                  password=user_valid["password"],
-                                                                  question=user_valid["question"],
-                                                                  answer=user_valid["answer"]).first()
+        user_found = session.query(db_model.User).filter_by(login=user_valid["login"],
+                                                            password=user_valid["password"],
+                                                            question=user_valid["question"],
+                                                            answer=user_valid["answer"]).first()
         session.close()
 
     def test_register_negative_missingArgument(self):
@@ -65,10 +65,10 @@ class TestRegister(unittest.TestCase):
                                        data=json.dumps(self.user_missing_argument))
         print(json.loads(request_result.content))
 
-        assert request_result.status_code == 406
+        assert request_result.status_code == 400
 
         session = db_model.Session()
-        user_found = session.query(db_model.Uzytkownik).filter_by(
+        user_found = session.query(db_model.User).filter_by(
             login=self.user_missing_argument["login"],
             password=self.user_missing_argument["password"],
             question=self.user_missing_argument["question"]).first()
@@ -101,7 +101,7 @@ class TestForgetPassword(unittest.TestCase):
         assert request_result.status_code == 200
 
 
-class TestUser(unittest.TestCase):
+class TestChangeQuestionAnswerUser(unittest.TestCase):
     user_missing_argument = {"login": user_valid["login"], "password": user_valid["password"],
                              "answer": user_valid["answer"]}
 
@@ -124,8 +124,10 @@ class TestUser(unittest.TestCase):
         request_result = requests.put(url=server_address + '/user/change_question_answer',
                                       data=json.dumps(self.user_missing_argument))
         print(json.loads(request_result.content))
-        assert request_result.status_code == 406
+        assert request_result.status_code == 400
 
+
+class TestDeleteUser(unittest.TestCase):
     def test_delete_positive(self):
         request_result = requests.delete(url=server_address + '/user/delete', data=json.dumps(user_valid))
         print(json.loads(request_result.content))
@@ -133,10 +135,12 @@ class TestUser(unittest.TestCase):
 
     def test_delete_negative_missingArgument(self):
         request_result = requests.delete(url=server_address + '/user/delete',
-                                         data=json.dumps(self.user_missing_argument))
+                                         data=json.dumps({"login":"magda"}))
         print(json.loads(request_result.content))
-        assert request_result.status_code == 406
+        assert request_result.status_code == 400
 
+
+class TestChangePassword(unittest.TestCase):
     def test_change_password_positive(self):
         request_result = requests.put(url=server_address + '/user/change_password',
                                       data=json.dumps(
@@ -155,21 +159,25 @@ class TestUser(unittest.TestCase):
                                           {"login": user_valid["login"], "password": user_valid["password"] + "123",
                                            "new_password": "12345"}))
         print(json.loads(request_result.content))
-        assert request_result.status_code == 406
+        assert request_result.status_code == 401
+
+
+class TestAdminModifyUser(unittest.TestCase):
 
     def test_user_admin_modify_user_positive(self):
         request_result = requests.put(url=server_address + '/user/admin/modify_user',
                                       data=json.dumps(
                                           {"login": user_valid["login"], "password": user_valid["password"],
-                                           "user_login": "magda", "user_password": "gessler",
+                                           "user_login": "magda", "user_password": "1234567",
                                            "user_question": "jak pan jezus powiedział",
                                            "user_answer": "tak jak pan jezus powiedział"}))
         print(json.loads(request_result.content))
         assert request_result.status_code == 200
+
         request_result = requests.put(url=server_address + '/user/admin/modify_user',
                                       data=json.dumps(
                                           {"login": user_valid["login"], "password": user_valid["password"],
-                                           "user_login": "magda",
+                                           "user_login": "magda", "user_password":"gessler",
                                            "user_question": "jak pan jezus powiedział",
                                            "user_answer": "tak jak pan jezus powiedział"}))
         print(json.loads(request_result.content))
@@ -183,7 +191,7 @@ class TestUser(unittest.TestCase):
                                            "user_question": "jak pan jezus powiedział",
                                            "user_answer": "tak jak pan jezus powiedział"}))
         print(json.loads(request_result.content))
-        assert request_result.status_code == 406
+        assert request_result.status_code == 401
 
         request_result = requests.put(url=server_address + '/user/admin/modify_user',  # user is not admin
                                       data=json.dumps(
@@ -192,7 +200,7 @@ class TestUser(unittest.TestCase):
                                            "user_question": "jak pan jezus powiedział",
                                            "user_answer": "tak jak pan jezus powiedział"}))
         print(json.loads(request_result.content))
-        assert request_result.status_code == 406
+        assert request_result.status_code == 403
 
 
 if __name__ == '__main__':
