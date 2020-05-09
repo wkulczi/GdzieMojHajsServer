@@ -1,4 +1,5 @@
 from application import db, ma
+from marshmallow import fields, Schema, post_load
 
 
 class User(db.Model):
@@ -19,13 +20,18 @@ class Receipt(db.Model):
     # one to many with receipt_product model
     id = db.Column(db.Integer, primary_key=True)
     # many to one with user model
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    # nullable for now
+    # todo add  nullable=False when user will be ready
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
 
     # [RELATIONSHIP] many to one with company model
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=False)
+    # nullable for now
+    # todo add  nullable=False when company will be ready
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id'), nullable=True)
 
-    # [RELATIONSHIP] one to many w/ ReceiptProduct
-    ReceiptProducts = db.relationship('ReceiptProduct', backref='product', lazy=True, post_update=True)
+    # [RELATIONSHIP] one to many w/ receipt_product
+    receipt_products = db.relationship('receipt_product', backref='product', lazy=True, post_update=True)
 
 
 class Product(db.Model):
@@ -35,11 +41,11 @@ class Product(db.Model):
     name = db.Column(db.String(250), nullable=False)
     price = db.Column(db.Float, nullable=False)
 
-    # [RELATIONSHIP] one to many w/ ReceiptProduct
-    ReceiptProducts = db.relationship('ReceiptProduct', lazy=True, post_update=True)
+    # [RELATIONSHIP] one to many w/ receipt_product
+    receipt_products = db.relationship('receipt_product', lazy=True, post_update=True)
 
 
-class ReceiptProduct(db.Model):
+class receipt_product(db.Model):
     __table_args__ = {'extend_existing': True}
     receipt_id = db.Column(db.Integer, db.ForeignKey('receipt.id'), primary_key=True,
                            nullable=False)  # many to one with receipt
@@ -70,6 +76,53 @@ class Category(db.Model):
     company = db.relationship('Company', backref="category", lazy=True, uselist=False, post_update=True)
 
 
+class ProductDto():
+    def __init__(self, name, price, quantity):
+        self.name = name
+        self.price = price
+        self.quantity = quantity
+
+    name = str()
+    price = float()
+    quantity = int()
+
+
+class ProductDtoSchema(Schema):
+    name = fields.Str()
+    price = fields.Decimal()
+    quantity = fields.Integer()
+
+    @post_load
+    def make_productDto(self, data, **kwargs):
+        return ProductDto(**data)
+
+
+class ReceiptDto():
+    def __init__(self,  shopName, categoryName, products, sum):
+        self.shopName = shopName
+        self.categoryName = categoryName
+        self.sum = sum
+        self.products = products
+
+    id = str()
+    shopName = str()
+    categoryName = str()
+    sum = float()
+    products = []
+
+
+class ReceiptDtoSchema(Schema):
+    id = fields.Str(required=False)
+    shopName = fields.Str()
+    categoryName = fields.Str()
+    sum = fields.Decimal()
+    products = fields.List(fields.Nested(ProductDtoSchema))
+
+    @post_load
+    def make_receiptDto(self, data, **kwargs):
+        return ReceiptDto(**data)
+
+
 class CategorySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Category
@@ -84,9 +137,9 @@ class CompanySchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
 
 
-class ReceiptProductSchema(ma.SQLAlchemyAutoSchema):
+class receipt_productSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        model = ReceiptProduct
+        model = receipt_product
         include_relationships = True
         load_instance = True
 
