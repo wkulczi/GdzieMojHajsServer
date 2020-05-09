@@ -51,9 +51,6 @@ def user_change_password_route():
 
     except ServerLogicException as e:
         return e.response
-# @app.route('/receipt')
-# def fake_show_receipt():
-#     return new_receipt()
 
 @app.route('/receipt', methods=['POST'])
 def add_receipt():
@@ -83,6 +80,12 @@ def user_admin_modify_user_route():
 
         if user_get(response_data["login"]).role != "admin":
             raise ServerLogicException("Insufficient permissions!", 403)
+        user_admin_modify(response_data)
+
+        return Response(json.dumps({"message": "Successfully modified user!"}), status=200)
+
+    except ServerLogicException as e:
+        return e.response
 
 @app.route('/categories')
 def all_categories():
@@ -92,12 +95,6 @@ def all_categories():
 def get_image_t(filename):
     return get_image(filename)
 
-        user_admin_modify(response_data)
-
-        return Response(json.dumps({"message": "Successfully modified user!"}), status=200)
-
-    except ServerLogicException as e:
-        return e.response
 
 
 @app.route('/user/delete', methods=['DELETE'])
