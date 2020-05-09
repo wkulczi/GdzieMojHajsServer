@@ -4,6 +4,7 @@ from flask_marshmallow import Marshmallow
 
 db = SQLAlchemy()
 ma = Marshmallow()
+Session = db.sessionmaker()
 
 
 def create_app():
@@ -16,5 +17,6 @@ def create_app():
         from . import models
         db.create_all()
         db.session.commit()
+        Session.configure(bind=db.engine)
         ma.init_app(app)
         return app
