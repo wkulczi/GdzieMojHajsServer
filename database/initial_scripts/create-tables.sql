@@ -1,5 +1,5 @@
-CREATE TABLE "user" (
-  "user_id" serial PRIMARY KEY,
+CREATE TABLE "account" (
+  "id" serial PRIMARY KEY,
   "login" varchar,
   "password" varchar,
   "question" varchar,
@@ -8,15 +8,15 @@ CREATE TABLE "user" (
 );
  
 CREATE TABLE "receipt" (
-  "receipt_id" serial PRIMARY KEY,
-  "user_id" int,
+  "id" serial PRIMARY KEY,
+  "account_id" int,
   "company_id" int
 );
 
 CREATE TABLE "company" (
-  "company_id" serial PRIMARY KEY,
+  "id" serial PRIMARY KEY,
   "category_id" int,
-  "name" varchar
+  "company_name" varchar
 );
 
 CREATE TABLE "receipt_product" (
@@ -27,21 +27,22 @@ CREATE TABLE "receipt_product" (
 );
 
 CREATE TABLE "product" (
-  "product_id" serial PRIMARY KEY,
-  "name" varchar,
+  "id" serial PRIMARY KEY,
+  "product_name" varchar,
   "price" float
 );
 
 CREATE TABLE "category" (
-  "category_id" serial PRIMARY KEY,
+  "id" serial PRIMARY KEY,
   "pkd_code" varchar,
-  "name" varchar
+  "category_name" varchar,
+  "description" varchar
 );
 
-ALTER TABLE "receipt" ADD FOREIGN KEY ("user_id") REFERENCES "user" ("user_id");
+ALTER TABLE "receipt" ADD FOREIGN KEY ("account_id") REFERENCES "account" ("id");
 
-ALTER TABLE "receipt_product" ADD FOREIGN KEY ("receipt_id") REFERENCES "receipt" ("receipt_id");
+ALTER TABLE "receipt_product" ADD FOREIGN KEY ("receipt_id") REFERENCES "receipt" ("id");
 
-ALTER TABLE "receipt" ADD FOREIGN KEY ("company_id") REFERENCES "company" ("company_id");
+ALTER TABLE "receipt" ADD FOREIGN KEY ("company_id") REFERENCES "company" ("id");
 
-ALTER TABLE "receipt_product" ADD FOREIGN KEY ("product_id") REFERENCES "product" ("product_id");
+ALTER TABLE "receipt_product" ADD FOREIGN KEY ("product_id") REFERENCES "product" ("id");
