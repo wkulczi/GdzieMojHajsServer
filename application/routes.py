@@ -49,11 +49,6 @@ def account_change_password_route():
         return e.response
 
 
-@app.route('/receipt', methods=['POST'])
-def add_receipt():
-    return ReceiptController.add_receipt(request.get_json())
-
-
 @app.route('/account/change_question_answer', methods=['PUT'])
 def account_change_question_answer_route():
     try:
@@ -122,6 +117,12 @@ def account_remind_password_route():
 
     except ServerLogicException as e:
         return e.response
+
+@app.route('/receipt', methods=['POST'])
+def add_receipt():
+    login = request.args.get("login")
+    password = request.args.get("password")
+    return ReceiptController.add_receipt(request.get_json(), dict({"login":login, "password":password}))
 
 
 @app.route('/receipts', methods=['GET'])

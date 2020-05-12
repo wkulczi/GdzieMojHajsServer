@@ -126,14 +126,14 @@ class ProductDtoSchema(Schema):
 
 
 class ReceiptDto():
-    def __init__(self, shopName, categoryName, products, sum):
-        self.shopName = shopName
+    def __init__(self, companyName, categoryName, products, sum):
+        self.companyName = companyName
         self.categoryName = categoryName
         self.sum = sum
         self.products = products
 
     id = str()
-    shopName = str()
+    companyName = str()
     categoryName = str()
     sum = float()
     products = []
@@ -141,7 +141,7 @@ class ReceiptDto():
 
 class ReceiptDtoSchema(Schema):
     id = fields.Str(required=False)
-    shopName = fields.Str()
+    companyName = fields.Str()
     categoryName = fields.Str()
     sum = fields.Decimal()
     products = fields.List(fields.Nested(ProductDtoSchema))
