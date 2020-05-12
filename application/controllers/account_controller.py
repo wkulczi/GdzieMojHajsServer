@@ -64,7 +64,7 @@ def account_insert_to_db(data: dict):
     session = Session()
 
     account_to_insert = models.Account(login=data["login"], password=data["password"],
-                                    question=data["question"], answer=data["answer"], role="account")
+                                       question=data["question"], answer=data["answer"], role="account")
     session.add(account_to_insert)
     session.commit()
     session.close()
@@ -111,7 +111,8 @@ def account_change_question_answer(data: dict):
 
 def account_admin_modify(data: dict):
     if not ("account_login" in data.keys() or any(elem in data.keys() for elem in
-                                               ["account_password", "account_role", ["account_question", "account_answer"]])):
+                                                  ["account_password", "account_role",
+                                                   ["account_question", "account_answer"]])):
         raise ServerLogicException("Missing Arguments!", 400)
 
     renamed_dict = {}
@@ -159,12 +160,10 @@ def account_get_receipts(data: dict):
     account_authorize(data)
 
     session = Session()
-
     account = account_get(data["login"])
-
     result_dict = {}
 
-    for receipt in session.query(models.Receipt).filter_by(id=account.id):
+    for receipt in session.query(models.Receipt).filter_by(account_id=account.id):
         print(receipt)
         receipt_dict = DictSerializable.to_dict(receipt)
         result_dict['receipts'] = result_dict.get('receipts', []) + [receipt_dict]
@@ -172,13 +171,16 @@ def account_get_receipts(data: dict):
         for receipt_product in session.query(models.receipt_product).filter_by(receipt_id=receipt.id):
             print(receipt_product)
             receipt_product_dict = DictSerializable.to_dict(receipt_product)
-            receipt_dict['receipt_product'] = receipt_dict.get('receipt_product', []) + [receipt_product_dict]
 
             for product in session.query(models.Product).filter_by(id=receipt_product.product_id):
                 print(product)
-                receipt_product_dict['product'] = DictSerializable.to_dict(product)
+                product_dict = DictSerializable.to_dict(product)
+                product_dict.update({"quantity": receipt_product_dict["quantity"]})
+                receipt_dict['sum'] = receipt_dict.get('sum', 0) + product_dict['quantity'] * product_dict["price"]
 
-        company = session.query(models.Company).filter_by(id=receipt.id).first()
+                receipt_dict['products'] = receipt_dict.get('products', []) + [product_dict]
+
+        company = session.query(models.Company).filter_by(id=receipt.company_id).first()
         receipt_dict['company'] = DictSerializable.to_dict(company)
 
         category = session.query(models.Category).filter_by(id=company.id).first()
@@ -190,5 +192,42 @@ def account_get_receipts(data: dict):
     session.close()
 
     print(result_dict)
-
     return result_dict
+
+# def account_get_receipts(data: dict):
+#     account_authorize(data)
+#
+#     session = Session()
+#
+#     account = account_get(data["login"])
+#
+#     result_dict = {}
+#
+#     for receipt in session.query(models.Receipt).filter_by(id=account.id):
+#         print(receipt)
+#         receipt_dict = DictSerializable.to_dict(receipt)
+#         result_dict['receipts'] = result_dict.get('receipts', []) + [receipt_dict]
+#
+#         for receipt_product in session.query(models.receipt_product).filter_by(receipt_id=receipt.id):
+#             print(receipt_product)
+#             receipt_product_dict = DictSerializable.to_dict(receipt_product)
+#             receipt_dict['receipt_product'] = receipt_dict.get('receipt_product', []) + [receipt_product_dict]
+#
+#             for product in session.query(models.Product).filter_by(id=receipt_product.product_id):
+#                 print(product)
+#                 receipt_product_dict['product'] = DictSerializable.to_dict(product)
+#
+#         company = session.query(models.Company).filter_by(id=receipt.id).first()
+#         receipt_dict['company'] = DictSerializable.to_dict(company)
+#
+#         category = session.query(models.Category).filter_by(id=company.id).first()
+#         receipt_dict['category'] = DictSerializable.to_dict(category)
+#
+#         print(company)
+#         print(category)
+#
+#     session.close()
+#
+#     print(result_dict)
+#
+#     return result_dict
