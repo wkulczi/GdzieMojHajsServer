@@ -190,7 +190,8 @@ def account_get_receipts(data: dict):
         print(category)
 
     session.close()
-    result_dict["receipts"] = sorted(result_dict["receipts"], key = lambda i: i['id'], reverse=True)
+    if not len(result_dict.values()) == 0:
+        result_dict["receipts"] = sorted(result_dict["receipts"], key=lambda i: i['id'], reverse=True)
     print(result_dict)
     return result_dict
 

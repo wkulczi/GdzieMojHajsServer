@@ -74,9 +74,46 @@ class ReceiptController:
             products_list.append(dtoSchema.dump(
                 models.ProductDto(name=product.product_name, price=product.price, quantity=product.quantity)))
 
-        return receiptDtoSchema.dump(
-            models.ReceiptDto(id=result[0], companyName=result[1], categoryName=result[2],
+        dumped = receiptDtoSchema.dump(
+            models.ReceiptDto(companyName=result[1], categoryName=result[2],
                               products=products_list, sum=sum))
+        dumped["id"] = str(result[0])
+        return dumped
+
+    @classmethod
+    def delete_receipt_by_id(cls, _id, param):
+        account_authorize(param)
+        session = Session()
+        # receipt = session.query(models.Receipt).filter_by(id=_id).delete()
+        receipt = session.query(models.Receipt).filter_by(id=_id).first()
+        session.delete(receipt)
+        session.commit()
+        return Response("{'response':'Deleted.'}", status=200, mimetype='application/json')
+
+    @classmethod
+    def update_receipt_by_id(cls, request, _id, user):
+        account_authorize(user)
+        # session = Session()
+        # receiptDto = models.ReceiptDtoSchema(exclude=['id'], unknown=EXCLUDE).load(request)  # productDto object here
+        # receipt = session.query(models.Receipt).filter_by(id=_id).first()
+        # company = session.query(models.Company).filter_by(company_name=receiptDto.companyName).first()
+        # if company is None:
+        #     category = models.Category(category_name=receiptDto.categoryName)
+        #     session.add(category)
+        #     session.commit()
+        #     company = models.Company(company_name=receiptDto.companyName, category_id=category.id)
+        #     session.add(company)
+        #     session.commit()
+        # if company is not None:
+        #     category = session.query(models.Category).filter_by(category_name=receiptDto.categoryName).first()
+        #     if category is None:
+        #         category = models.Category(category_name=receiptDto.categoryName)
+        #         session.add(category)
+        #         session.commit()
+        #         company.category_id = category.id
+        #         session.add(company)
+        #         session.commit()
+        return Response("{'response':'well i dunno.'}", status=418, mimetype='application/json')
 
 # Read
 # Update

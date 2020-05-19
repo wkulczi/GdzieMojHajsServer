@@ -118,18 +118,57 @@ def account_remind_password_route():
     except ServerLogicException as e:
         return e.response
 
+
 @app.route('/receipt', methods=['GET'])
 def get_receipt_by_id():
-    login = request.args.get("login")
-    password = request.args.get("password")
-    id = request.args.get("id")
-    return ReceiptController.get_receipt_by_id(id, dict({"login":login, "password":password}))
+    try:
+        login = request.args.get("login")
+        password = request.args.get("password")
+        id = request.args.get("id")
+
+        return ReceiptController.get_receipt_by_id(id, dict({"login": login, "password": password}))
+
+    except ServerLogicException as e:
+        return e.response
+
+
+@app.route('/receipt', methods=['DELETE'])
+def delete_receipt_by_id():
+    try:
+        login = request.args.get("login")
+        password = request.args.get("password")
+        id = request.args.get("id")
+
+        return ReceiptController.delete_receipt_by_id(id, dict({"login": login, "password": password}))
+
+    except ServerLogicException as e:
+        return e.response
+
+
+@app.route('/receipt', methods=['PATCH'])
+def update_receipt_by_id():
+    try:
+        login = request.args.get("login")
+        password = request.args.get("password")
+        id = request.args.get("id")
+
+        return ReceiptController.update_receipt_by_id(request.get_json(), id,
+                                                      dict({"login": login, "password": password}))
+
+    except ServerLogicException as e:
+        return e.response
+
 
 @app.route('/receipt', methods=['POST'])
 def add_receipt():
-    login = request.args.get("login")
-    password = request.args.get("password")
-    return ReceiptController.add_receipt(request.get_json(), dict({"login":login, "password":password}))
+    try:
+        login = request.args.get("login")
+        password = request.args.get("password")
+
+        return ReceiptController.add_receipt(request.get_json(), dict({"login": login, "password": password}))
+
+    except ServerLogicException as e:
+        return e.response
 
 
 @app.route('/receipts', methods=['GET'])
