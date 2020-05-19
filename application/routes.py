@@ -118,6 +118,13 @@ def account_remind_password_route():
     except ServerLogicException as e:
         return e.response
 
+@app.route('/receipt', methods=['GET'])
+def get_receipt_by_id():
+    login = request.args.get("login")
+    password = request.args.get("password")
+    id = request.args.get("id")
+    return ReceiptController.get_receipt_by_id(id, dict({"login":login, "password":password}))
+
 @app.route('/receipt', methods=['POST'])
 def add_receipt():
     login = request.args.get("login")

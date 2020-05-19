@@ -1,5 +1,6 @@
-from flask import json, Response
+from flask import Response
 from marshmallow import EXCLUDE
+from sqlalchemy import select
 
 import application.models as models
 from application import Session
@@ -45,6 +46,37 @@ class ReceiptController:
         except:
             resp = Response("{'response':'Receipt adding error.'}", status=501, mimetype='application/json')
         return resp
+
+    @classmethod
+    def get_receipt_by_id(cls, _id, param):
+        account_authorize(param)
+        session = Session()
+        # ktokolwiek tutaj wejdzie: to nie jest głupie
+        # lepiej zrobić dwa selecty w bazie niż 5 osobnych zapytań z mapperami/
+
+        result = session.execute(
+            select([models.Receipt.id, models.Company.company_name, models.Category.category_name])
+                .where(models.Receipt.id == _id)
+                .where(models.Receipt.company_id == models.Company.id)
+                .where(models.Company.category_id == models.Category.id)).first()
+
+        products = session.execute(
+            select([models.Product.product_name, models.Product.price, models.receipt_product.quantity])
+                .where(models.Receipt.id == models.receipt_product.receipt_id)
+                .where(models.Product.id == models.receipt_product.product_id)
+                .where(models.Receipt.id == _id))
+        products_list = []
+        dtoSchema = models.ProductDtoSchema()
+        receiptDtoSchema = models.ReceiptDtoSchema()
+        sum = 0  # i do not like it, but i dont think i have any other option
+        for product in products:
+            sum = product.price * product.quantity
+            products_list.append(dtoSchema.dump(
+                models.ProductDto(name=product.product_name, price=product.price, quantity=product.quantity)))
+
+        return receiptDtoSchema.dump(
+            models.ReceiptDto(id=result[0], companyName=result[1], categoryName=result[2],
+                              products=products_list, sum=sum))
 
 # Read
 # Update
