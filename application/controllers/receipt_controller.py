@@ -109,20 +109,16 @@ class ReceiptController:
         # find company with specific category
         company = session.query(models.Company).filter_by(company_name=receiptDto.companyName,
                                                           category_id=newCategory.id).first()
-
         if company is None:
             company = models.Company(company_name=receiptDto.companyName, category_id=newCategory.id)
             session.add(company)
             session.commit()
 
-        # try:
-        # receipt.company_id = company.id
-        # receipt.receipt_products.clear()
+        receipt.company_id = company.id
+
         for products in receipt.receipt_products:
             session.delete(products)
             session.commit()
-        # session.add(receipt)
-        # session.commit()
 
         for productDto in receiptDto.products:
             pro = models.Product(product_name=productDto.name, price=productDto.price)
