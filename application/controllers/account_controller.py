@@ -183,7 +183,7 @@ def account_get_receipts(data: dict):
         company = session.query(models.Company).filter_by(id=receipt.company_id).first()
         receipt_dict['company'] = DictSerializable.to_dict(company)
 
-        category = session.query(models.Category).filter_by(id=company.id).first()
+        category = session.query(models.Category).filter_by(id=company.category_id).first()
         receipt_dict['category'] = DictSerializable.to_dict(category)
 
         print(company)

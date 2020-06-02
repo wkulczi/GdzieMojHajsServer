@@ -59,7 +59,8 @@ class Product(db.Model):
             self.id, self.product_name, self.price)
 
     # [RELATIONSHIP] one to many w/ receipt_product
-    receipt_products = db.relationship('receipt_product', lazy=True, post_update=True, passive_deletes=True)
+    receipt_products = db.relationship('receipt_product', cascade='save-update, merge, delete, delete-orphan',
+                                       lazy=True, post_update=True, passive_deletes=True)
 
 
 class receipt_product(db.Model):

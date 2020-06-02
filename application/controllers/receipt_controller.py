@@ -117,7 +117,9 @@ class ReceiptController:
         receipt.company_id = company.id
 
         for products in receipt.receipt_products:
+            product = session.query(models.Product).filter_by(id=products.product_id)
             session.delete(products)
+            product.delete()
             session.commit()
 
         for productDto in receiptDto.products:
