@@ -11,8 +11,9 @@ def select_categories():
     for row in result:
         category = {}
         category['name'] = row.category_name
+        category['name_eng'] = row.category_name_eng
         category['description'] = row.description
-        category['image'] = row.category_name.lower() + '.jpg'
+        category['image'] = row.category_name_eng.lower() + '.jpg'
         res.append(category)
     print(res)
     return jsonify(res)
