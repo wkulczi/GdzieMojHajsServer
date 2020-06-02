@@ -16,16 +16,19 @@ class ReceiptController:
         account_authorize(data)
         account = account_get(data["login"])
         session = Session()
-        # todo FIX IT SOMEHOW, WHY DO I HAVE TO USE UNKNOWN=EXCLUDE HERE .__.
+        # this exclude is needed, don't ask me why, it's a secret
         result = models.ReceiptDtoSchema(exclude=['id'], unknown=EXCLUDE).load(request)  # productDto object here
-        company = session.query(models.Company).filter_by(company_name=result.companyName).first()
+        # find the category (bcs they are always present)
+        category = session.query(models.Category).filter_by(category_name=result.categoryName).first()
+        # find company WITH specific category
+        company = session.query(models.Company).filter_by(company_name=result.companyName,
+                                                          category_id=category.id).first()  # get company
+        # if there is no company covering those info
         if company is None:
-            category = models.Category(category_name=result.categoryName)
-            session.add(category)
-            session.commit()
             company = models.Company(company_name=result.companyName, category_id=category.id)
             session.add(company)
             session.commit()
+
         try:
             receipt = models.Receipt(account_id=account.id, receipt_products=[], company_id=company.id)
             session.add(receipt)
@@ -52,7 +55,7 @@ class ReceiptController:
         account_authorize(param)
         session = Session()
         # ktokolwiek tutaj wejdzie: to nie jest głupie
-        # lepiej zrobić dwa selecty w bazie niż 5 osobnych zapytań z mapperami/
+        # lepiej zrobić dwa selecty w bazie niż 5 osobnych zapytań z mapperami
 
         result = session.execute(
             select([models.Receipt.id, models.Company.company_name, models.Category.category_name])
@@ -84,7 +87,6 @@ class ReceiptController:
     def delete_receipt_by_id(cls, _id, param):
         account_authorize(param)
         session = Session()
-        # receipt = session.query(models.Receipt).filter_by(id=_id).delete()
         receipt = session.query(models.Receipt).filter_by(id=_id).first()
         session.delete(receipt)
         session.commit()
@@ -93,28 +95,65 @@ class ReceiptController:
     @classmethod
     def update_receipt_by_id(cls, request, _id, user):
         account_authorize(user)
-        # session = Session()
-        # receiptDto = models.ReceiptDtoSchema(exclude=['id'], unknown=EXCLUDE).load(request)  # productDto object here
-        # receipt = session.query(models.Receipt).filter_by(id=_id).first()
-        # company = session.query(models.Company).filter_by(company_name=receiptDto.companyName).first()
-        # if company is None:
-        #     category = models.Category(category_name=receiptDto.categoryName)
-        #     session.add(category)
-        #     session.commit()
-        #     company = models.Company(company_name=receiptDto.companyName, category_id=category.id)
-        #     session.add(company)
-        #     session.commit()
-        # if company is not None:
-        #     category = session.query(models.Category).filter_by(category_name=receiptDto.categoryName).first()
-        #     if category is None:
-        #         category = models.Category(category_name=receiptDto.categoryName)
-        #         session.add(category)
-        #         session.commit()
-        #         company.category_id = category.id
-        #         session.add(company)
-        #         session.commit()
-        return Response("{'response':'well i dunno.'}", status=418, mimetype='application/json')
+        session = Session()
 
-# Read
-# Update
-# Delete
+        # new version of receipt
+        receiptDto = models.ReceiptDtoSchema(exclude=['id'], unknown=EXCLUDE).load(request)  # productDto object here
+
+        # fetch old receipt
+        receipt = session.query(models.Receipt).filter_by(id=_id).first()
+
+        # category is always present
+        newCategory = session.query(models.Category).filter_by(category_name=receiptDto.categoryName).first()
+
+        # find company with specific category
+        company = session.query(models.Company).filter_by(company_name=receiptDto.companyName,
+                                                          category_id=newCategory.id).first()
+        if company is None:
+            company = models.Company(company_name=receiptDto.companyName, category_id=newCategory.id)
+            session.add(company)
+            session.commit()
+
+        receipt.company_id = company.id
+
+        for products in receipt.receipt_products:
+            product = session.query(models.Product).filter_by(id=products.product_id)
+            session.delete(products)
+            product.delete()
+            session.commit()
+
+        for productDto in receiptDto.products:
+            pro = models.Product(product_name=productDto.name, price=productDto.price)
+            session.add(pro)
+            session.commit()
+            receiptProduct = models.receipt_product(receipt_id=receipt.id, product_id=pro.id,
+                                                    quantity=productDto.quantity)
+            receipt.receipt_products.append(receiptProduct)
+            session.add(receiptProduct)
+            session.add(receipt)
+            session.commit()
+
+        resp = Response("{'response':'Editing Successful.'}", status=200, mimetype='application/json')
+        # except:
+        #     resp = Response("{'response':'Receipt editing error.'}", status=501, mimetype='application/json')
+        return resp
+
+        # try:
+        #     receipt = models.Receipt(account_id=account.id, receipt_products=[], company_id=company.id)
+        #     session.add(receipt)
+        #     session.commit()
+        #
+        #     for productDto in result.products:
+        #         pro = models.Product(product_name=productDto.name, price=productDto.price)
+        #         session.add(pro)
+        #         session.commit()
+        #         receiptProduct = models.receipt_product(receipt_id=receipt.id, product_id=pro.id,
+        #                                                 quantity=productDto.quantity)
+        #         receipt.receipt_products.append(receiptProduct)
+        #         session.add(receiptProduct)
+        #         session.add(receipt)
+        #         session.commit()
+        #
+        #     resp = Response("{'response':'Adding Successful.'}", status=200, mimetype='application/json')
+        # except:
+        #     resp = Response("{'response':'Receipt adding error.'}", status=501, mimetype='application/json')

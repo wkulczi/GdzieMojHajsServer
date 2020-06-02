@@ -20,7 +20,7 @@ class Account(db.Model):
         return "<account(account_id='%s', login='%s', password='%s', question='%s', answer='%s')>" % (
             self.id, self.login, self.password, self.question, self.answer)
 
-    receipts = db.relationship('Receipt', backref='Account', lazy=True, post_update=True,passive_deletes=True)
+    receipts = db.relationship('Receipt', backref='Account', lazy=True, post_update=True, passive_deletes=True)
 
 
 class Receipt(db.Model):
@@ -31,19 +31,20 @@ class Receipt(db.Model):
 
     # nullable for now
     # todo add  nullable=False when account will be ready
-    account_id = db.Column(db.Integer, db.ForeignKey('account.id',ondelete='CASCADE'), nullable=True)
+    account_id = db.Column(db.Integer, db.ForeignKey('account.id', ondelete='CASCADE'), nullable=True)
 
     # [RELATIONSHIP] many to one with company model
     # nullable for now
     # todo add  nullable=False when company will be ready
-    company_id = db.Column(db.Integer, db.ForeignKey('company.id',ondelete='CASCADE'), nullable=True)
+    company_id = db.Column(db.Integer, db.ForeignKey('company.id', ondelete='CASCADE'), nullable=True)
 
     def __repr__(self):
         return "<receipt(receipt_id='%s', account_id='%s', company_id'%s')>" % (
             self.id, self.account_id, self.company_id)
 
     # [RELATIONSHIP] one to many w/ receipt_product
-    receipt_products = db.relationship('receipt_product', backref='product', lazy=True, post_update=True,passive_deletes=True)
+    receipt_products = db.relationship('receipt_product', cascade='save-update, merge, delete, delete-orphan',
+                                       backref='product', lazy="joined", post_update=True, passive_deletes=True)
 
 
 class Product(db.Model):
@@ -58,14 +59,14 @@ class Product(db.Model):
             self.id, self.product_name, self.price)
 
     # [RELATIONSHIP] one to many w/ receipt_product
-    receipt_products = db.relationship('receipt_product', lazy=True, post_update=True,passive_deletes=True)
+    receipt_products = db.relationship('receipt_product', cascade='save-update, merge, delete, delete-orphan',
+                                       lazy=True, post_update=True, passive_deletes=True)
 
 
 class receipt_product(db.Model):
     __table_args__ = {'extend_existing': True}
-    receipt_id = db.Column(db.Integer, db.ForeignKey('receipt.id',ondelete='CASCADE'), primary_key=True,
-                           nullable=False)  # many to one with receipt
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id',ondelete='CASCADE'), primary_key=True,
+    receipt_id = db.Column(db.Integer, db.ForeignKey('receipt.id', ondelete='CASCADE'))  # many to one with receipt
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete='CASCADE'), primary_key=True,
                            nullable=False)  # many to one with product
     quantity = db.Column(db.Integer, nullable=False)
 
@@ -87,7 +88,7 @@ class Company(db.Model):
             self.id, self.category_id, self.company_name)
 
     # [RELATIONSHIP] one to many with receipt
-    receipts = db.relationship('Receipt', backref='company', lazy=True, post_update=True,passive_deletes=True)
+    receipts = db.relationship('Receipt', backref='company', lazy=True, post_update=True, passive_deletes=True)
 
 
 class Category(db.Model):
@@ -97,7 +98,8 @@ class Category(db.Model):
     pkd_code = db.Column(db.String(250))
     category_name = db.Column(db.String(250))
     description = db.Column(db.String(250))
-    company = db.relationship('Company', backref="category", lazy=True, uselist=False, post_update=True,passive_deletes=True)
+    company = db.relationship('Company', backref="category", lazy=True, uselist=False, post_update=True,
+                              passive_deletes=True)
 
     def __repr__(self):
         return "<category(category_id='%s', pkd_code='%s', name'%s', description'%s')>" % (
