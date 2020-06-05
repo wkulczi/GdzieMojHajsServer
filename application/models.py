@@ -97,13 +97,14 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     pkd_code = db.Column(db.String(250))
     category_name = db.Column(db.String(250))
+    category_name_eng = db.Column(db.String(250))
     description = db.Column(db.String(250))
     company = db.relationship('Company', backref="category", lazy=True, uselist=False, post_update=True,
                               passive_deletes=True)
 
     def __repr__(self):
-        return "<category(category_id='%s', pkd_code='%s', name'%s', description'%s')>" % (
-            self.id, self.pkd_code, self.category_name, self.description)
+        return "<category(category_id='%s', pkd_code='%s', name'%s', name_eng'%s', description'%s')>" % (
+            self.id, self.pkd_code, self.category_name, self.category_name_eng, self.description)
 
 
 class ProductDto():

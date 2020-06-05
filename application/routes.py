@@ -3,6 +3,7 @@ from flask import current_app as app, request
 from application.controllers.receipt_controller import *
 from application.controllers.category_controller import *
 from application.controllers.account_controller import *
+from application.controllers.product_controller import *
 
 
 @app.route('/status', methods=['GET'])
@@ -81,6 +82,17 @@ def account_admin_modify_account_route():
 @app.route('/categories')
 def all_categories():
     return select_categories()
+
+
+@app.route('/category_spent')
+def get_category_spent():
+    name = request.args.get("category_name")
+    return get_spent_in_category(name)
+
+
+@app.route('/money_spent')
+def get_money_spent():
+    return spent_money()
 
 
 @app.route('/get_image/<filename>')
