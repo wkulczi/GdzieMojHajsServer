@@ -132,6 +132,27 @@ def change_monthly_limit():
     except ServerLogicException as e:
         return e.response
 
+@app.route('/monthly_left', methods=['GET'])
+def get_monthly_left():
+    try:
+        login = request.args.get("login")
+        password = request.args.get("password")
+
+        return monthly_left(dict({"login": login, "password": password}))
+
+    except ServerLogicException as e:
+        return e.response
+
+@app.route('/daily_left', methods=['GET'])
+def get_daily_left():
+    try:
+        login = request.args.get("login")
+        password = request.args.get("password")
+
+        return daily_left(dict({"login": login, "password": password}))
+
+    except ServerLogicException as e:
+        return e.response
 
 @app.route('/get_image/<filename>')
 def get_image_t(filename):

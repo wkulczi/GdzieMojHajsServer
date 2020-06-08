@@ -1,3 +1,5 @@
+import datetime
+
 from flask import Response
 from marshmallow import EXCLUDE
 from sqlalchemy import select
@@ -30,7 +32,7 @@ class ReceiptController:
             session.commit()
 
         try:
-            receipt = models.Receipt(account_id=account.id, receipt_products=[], company_id=company.id)
+            receipt = models.Receipt(account_id=account.id, receipt_products=[], company_id=company.id, date=datetime.datetime.now())
             session.add(receipt)
             session.commit()
 

@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from flask import Response, jsonify
@@ -5,7 +6,7 @@ from flask import Response, jsonify
 from application import models
 from application import Session
 
-from sqlalchemy import select
+from sqlalchemy import select, extract
 from sqlalchemy.sql import func
 
 
@@ -18,10 +19,15 @@ class ServerLogicException(Exception):
 
 class DictSerializable(object):
 
-    def to_dict(self):
+    # kwargs dziala jak dict
+    def to_dict(self, **kwargs):
         result = dict()
         for key in self.__mapper__.c.keys():
-            result[key] = getattr(self, key)
+            if 'skip' in kwargs:
+                if key not in kwargs['skip']:
+                    result[key] = getattr(self, key)
+            else:
+                result[key] = getattr(self, key)
         return result
 
 
@@ -169,7 +175,7 @@ def account_get_receipts(data: dict):
 
     for receipt in session.query(models.Receipt).filter_by(account_id=account.id):
         print(receipt)
-        receipt_dict = DictSerializable.to_dict(receipt)
+        receipt_dict = DictSerializable.to_dict(receipt, skip='date')
         result_dict['receipts'] = result_dict.get('receipts', []) + [receipt_dict]
 
         for receipt_product in session.query(models.receipt_product).filter_by(receipt_id=receipt.id):
@@ -230,40 +236,41 @@ def update_monthly_limit(response: dict):
         {"monthlyLimit": response["monthly"]})
     session.commit()
     session.close()
-# def account_get_receipts(data: dict):
-#     account_authorize(data)
-#
-#     session = Session()
-#
-#     account = account_get(data["login"])
-#
-#     result_dict = {}
-#
-#     for receipt in session.query(models.Receipt).filter_by(id=account.id):
-#         print(receipt)
-#         receipt_dict = DictSerializable.to_dict(receipt)
-#         result_dict['receipts'] = result_dict.get('receipts', []) + [receipt_dict]
-#
-#         for receipt_product in session.query(models.receipt_product).filter_by(receipt_id=receipt.id):
-#             print(receipt_product)
-#             receipt_product_dict = DictSerializable.to_dict(receipt_product)
-#             receipt_dict['receipt_product'] = receipt_dict.get('receipt_product', []) + [receipt_product_dict]
-#
-#             for product in session.query(models.Product).filter_by(id=receipt_product.product_id):
-#                 print(product)
-#                 receipt_product_dict['product'] = DictSerializable.to_dict(product)
-#
-#         company = session.query(models.Company).filter_by(id=receipt.id).first()
-#         receipt_dict['company'] = DictSerializable.to_dict(company)
-#
-#         category = session.query(models.Category).filter_by(id=company.id).first()
-#         receipt_dict['category'] = DictSerializable.to_dict(category)
-#
-#         print(company)
-#         print(category)
-#
-#     session.close()
-#
-#     print(result_dict)
-#
-#     return result_dict
+
+
+def monthly_left(login: dict):
+    account_authorize(login)
+    account = account_get(login["login"])
+    session = Session()
+    sum = 0
+    data = session.query(models.Receipt).filter(extract('month', models.Receipt.date) == datetime.datetime.now().month)
+    for receipt in data:
+        shopping_info = session.execute(
+            select([func.sum(models.Product.price * models.receipt_product.quantity)])
+                .where(models.Receipt.id == receipt.id)
+                .where(models.receipt_product.receipt_id == receipt.id)
+                .where(models.Product.id == models.receipt_product.product_id)).first()
+        sum = sum + shopping_info[0]
+
+    monthly_limit = \
+        session.execute(select([models.Account.monthlyLimit]).where(models.Account.id == account.id)).first()[0]
+    print(monthly_limit-sum)
+    return jsonify(monthly_limit - sum)
+
+
+def daily_left(login: dict):
+    account_authorize(login)
+    account = account_get(login["login"])
+    session = Session()
+    sum = 0
+    data = session.query(models.Receipt).filter(extract('day', models.Receipt.date) == datetime.datetime.now().day)
+    for receipt in data:
+        shopping_info = session.execute(
+            select([func.sum(models.Product.price * models.receipt_product.quantity)])
+                .where(models.Receipt.id == receipt.id)
+                .where(models.receipt_product.receipt_id == receipt.id)
+                .where(models.Product.id == models.receipt_product.product_id)).first()
+        sum = sum + shopping_info[0]
+
+    daily_limit = session.execute(select([models.Account.dailyLimit]).where(models.Account.id == account.id)).first()[0]
+    return jsonify(daily_limit - sum)

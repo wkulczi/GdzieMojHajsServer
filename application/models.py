@@ -1,3 +1,5 @@
+import datetime
+
 from application import db, ma
 from marshmallow import fields, Schema, post_load
 
@@ -39,6 +41,7 @@ class Receipt(db.Model):
     # nullable for now
     # todo add  nullable=False when company will be ready
     company_id = db.Column(db.Integer, db.ForeignKey('company.id', ondelete='CASCADE'), nullable=True)
+    date = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return "<receipt(receipt_id='%s', account_id='%s', company_id'%s')>" % (
