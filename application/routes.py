@@ -79,21 +79,80 @@ def account_admin_modify_account_route():
         return e.response
 
 
-@app.route('/categories')
+@app.route('/categories', methods=['GET'])
 def all_categories():
     return select_categories()
 
 
-@app.route('/category_spent')
+@app.route('/category_spent', methods=['GET'])
 def get_category_spent():
     name = request.args.get("category_name")
-    return get_spent_in_category(name)
+    login = request.args.get("login")
+    return get_spent_in_category(name, login)
 
 
-@app.route('/money_spent')
+@app.route('/money_spent', methods=['GET'])
 def get_money_spent():
-    return spent_money()
+    login = request.args.get("login")
+    return spent_money(login)
 
+
+@app.route('/daily_limit', methods=['GET'])
+def get_daily_limit():
+    login = request.args.get("login")
+    return daily_limit(login)
+
+
+@app.route('/daily_limit', methods=['PUT'])
+def change_daily_limit():
+    try:
+        response_data = json.loads(request.get_data())
+        update_daily_limit(response_data)
+
+        return Response(json.dumps({"message": "Successfully changed daily limit!"}), status=200)
+
+    except ServerLogicException as e:
+        return e.response
+
+
+@app.route('/monthly_limit', methods=['GET'])
+def get_monthly_limit():
+    login = request.args.get("login")
+    return monthly_limit(login)
+
+
+@app.route('/monthly_limit', methods=['PUT'])
+def change_monthly_limit():
+    try:
+        response_data = json.loads(request.get_data())
+        update_monthly_limit(response_data)
+
+        return Response(json.dumps({"message": "Successfully changed monthly limit!"}), status=200)
+
+    except ServerLogicException as e:
+        return e.response
+
+@app.route('/monthly_left', methods=['GET'])
+def get_monthly_left():
+    try:
+        login = request.args.get("login")
+        password = request.args.get("password")
+
+        return monthly_left(dict({"login": login, "password": password}))
+
+    except ServerLogicException as e:
+        return e.response
+
+@app.route('/daily_left', methods=['GET'])
+def get_daily_left():
+    try:
+        login = request.args.get("login")
+        password = request.args.get("password")
+
+        return daily_left(dict({"login": login, "password": password}))
+
+    except ServerLogicException as e:
+        return e.response
 
 @app.route('/get_image/<filename>')
 def get_image_t(filename):

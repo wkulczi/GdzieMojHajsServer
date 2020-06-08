@@ -22,7 +22,7 @@ def select_categories():
     return jsonify(res)
 
 
-def get_spent_in_category(category_name):
+def get_spent_in_category(category_name, login):
     session = Session()
     result = session.execute(select([
         func.sum(models.Product.price*models.receipt_product.quantity)]).where(
@@ -30,7 +30,8 @@ def get_spent_in_category(category_name):
         models.receipt_product.receipt_id == models.Receipt.id).where(
         models.Receipt.company_id == models.Company.id).where(
         models.Company.category_id == models.Category.id).where(
-        models.Category.category_name_eng == category_name)
+        models.Category.category_name_eng == category_name).where(
+        models.Account.login == login)
     ).first()
     return jsonify(result[0])
 
@@ -39,11 +40,11 @@ def get_image(filename):
     return send_file('images\\' + filename, mimetype='image/jpg')
 
 
-# TODO przerzucić to do account controller i przekształcić na zapytanie dla konta
-def spent_money():
+def spent_money(login):
     session = Session()
     result = session.execute(select([
         func.sum(models.Product.price * models.receipt_product.quantity)]).where(
-        models.Product.id == models.receipt_product.product_id)
+        models.Product.id == models.receipt_product.product_id).where(
+        models.Account.login == login)
     ).first()
     return jsonify(result[0])

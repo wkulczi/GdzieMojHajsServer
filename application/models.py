@@ -1,3 +1,5 @@
+import datetime
+
 from application import db, ma
 from marshmallow import fields, Schema, post_load
 
@@ -13,12 +15,14 @@ class Account(db.Model):
     question = db.Column(db.String(250))
     answer = db.Column(db.String(250))
     role = db.Column(db.String(250))
+    monthlyLimit = db.Column(db.Float, nullable=False)
+    dailyLimit = db.Column(db.Float, nullable=False)
 
     # one to many with receipts
 
     def __repr__(self):
-        return "<account(account_id='%s', login='%s', password='%s', question='%s', answer='%s')>" % (
-            self.id, self.login, self.password, self.question, self.answer)
+        return "<account(account_id='%s', login='%s', password='%s', question='%s', answer='%s', monthlyLimit='%s', dailyLimit='%s')>" % (
+            self.id, self.login, self.password, self.question, self.answer, self.monthlyLimit, self.dailyLimit)
 
     receipts = db.relationship('Receipt', backref='Account', lazy=True, post_update=True, passive_deletes=True)
 
@@ -37,6 +41,7 @@ class Receipt(db.Model):
     # nullable for now
     # todo add  nullable=False when company will be ready
     company_id = db.Column(db.Integer, db.ForeignKey('company.id', ondelete='CASCADE'), nullable=True)
+    date = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return "<receipt(receipt_id='%s', account_id='%s', company_id'%s')>" % (
