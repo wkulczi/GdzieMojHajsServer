@@ -1,9 +1,12 @@
 import json
 
-from flask import Response
+from flask import Response, jsonify
 
 from application import models
 from application import Session
+
+from sqlalchemy import select
+from sqlalchemy.sql import func
 
 
 class ServerLogicException(Exception):
@@ -64,7 +67,8 @@ def account_insert_to_db(data: dict):
     session = Session()
 
     account_to_insert = models.Account(login=data["login"], password=data["password"],
-                                       question=data["question"], answer=data["answer"], role="account")
+                                       question=data["question"], answer=data["answer"], role="account",
+                                       monthlyLimit=0, dailyLimit=0)
     session.add(account_to_insert)
     session.commit()
     session.close()
@@ -195,6 +199,37 @@ def account_get_receipts(data: dict):
     print(result_dict)
     return result_dict
 
+
+def daily_limit(login):
+    session = Session()
+    result = session.execute(select([models.Account.dailyLimit]).where(models.Account.login == login)).first()
+    return jsonify(result[0])
+
+
+def update_daily_limit(response: dict):
+    session = Session()
+    if not all(elem in response.keys() for elem in ["login", "daily"]):
+        raise ServerLogicException("Missing Arguments!", 400)
+    session.query(models.Account).filter_by(login=response["login"]).update(
+        {"dailyLimit": response["daily"]})
+    session.commit()
+    session.close()
+
+
+def monthly_limit(login):
+    session = Session()
+    result = session.execute(select([models.Account.monthlyLimit]).where(models.Account.login == login)).first()
+    return jsonify(result[0])
+
+
+def update_monthly_limit(response: dict):
+    session = Session()
+    if not all(elem in response.keys() for elem in ["login", "monthly"]):
+        raise ServerLogicException("Missing Arguments!", 400)
+    session.query(models.Account).filter_by(login=response["login"]).update(
+        {"monthlyLimit": response["monthly"]})
+    session.commit()
+    session.close()
 # def account_get_receipts(data: dict):
 #     account_authorize(data)
 #

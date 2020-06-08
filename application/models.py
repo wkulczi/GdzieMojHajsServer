@@ -13,12 +13,14 @@ class Account(db.Model):
     question = db.Column(db.String(250))
     answer = db.Column(db.String(250))
     role = db.Column(db.String(250))
+    monthlyLimit = db.Column(db.Float, nullable=False)
+    dailyLimit = db.Column(db.Float, nullable=False)
 
     # one to many with receipts
 
     def __repr__(self):
-        return "<account(account_id='%s', login='%s', password='%s', question='%s', answer='%s')>" % (
-            self.id, self.login, self.password, self.question, self.answer)
+        return "<account(account_id='%s', login='%s', password='%s', question='%s', answer='%s', monthlyLimit='%s', dailyLimit='%s')>" % (
+            self.id, self.login, self.password, self.question, self.answer, self.monthlyLimit, self.dailyLimit)
 
     receipts = db.relationship('Receipt', backref='Account', lazy=True, post_update=True, passive_deletes=True)
 
