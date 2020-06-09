@@ -1,9 +1,8 @@
 from flask import current_app as app, request
 
-from application.controllers.receipt_controller import *
-from application.controllers.category_controller import *
 from application.controllers.account_controller import *
-from application.controllers.product_controller import *
+from application.controllers.category_controller import *
+from application.controllers.receipt_controller import *
 
 
 @app.route('/status', methods=['GET'])
@@ -132,6 +131,7 @@ def change_monthly_limit():
     except ServerLogicException as e:
         return e.response
 
+
 @app.route('/monthly_left', methods=['GET'])
 def get_monthly_left():
     try:
@@ -143,6 +143,7 @@ def get_monthly_left():
     except ServerLogicException as e:
         return e.response
 
+
 @app.route('/daily_left', methods=['GET'])
 def get_daily_left():
     try:
@@ -153,6 +154,7 @@ def get_daily_left():
 
     except ServerLogicException as e:
         return e.response
+
 
 @app.route('/get_image/<filename>')
 def get_image_t(filename):
@@ -248,6 +250,8 @@ def account_get_receipts_route():
         login = request.args.get("login")
         password = request.args.get("password")
         receipts = account_get_receipts(dict({"login": login, "password": password}))
+        print(account_get_receipts(dict({"login": login, "password": password})))
+        print("DUPA")
 
         return Response(json.dumps(receipts), status=200)
 

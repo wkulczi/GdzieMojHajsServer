@@ -3,7 +3,7 @@ import json
 
 from flask import Response, jsonify
 
-from application import models
+from application import models, insert_data
 from application import Session
 
 from sqlalchemy import select, extract
@@ -174,16 +174,13 @@ def account_get_receipts(data: dict):
     result_dict = {}
 
     for receipt in session.query(models.Receipt).filter_by(account_id=account.id):
-        print(receipt)
         receipt_dict = DictSerializable.to_dict(receipt, skip='date')
         result_dict['receipts'] = result_dict.get('receipts', []) + [receipt_dict]
 
         for receipt_product in session.query(models.receipt_product).filter_by(receipt_id=receipt.id):
-            print(receipt_product)
             receipt_product_dict = DictSerializable.to_dict(receipt_product)
 
             for product in session.query(models.Product).filter_by(id=receipt_product.product_id):
-                print(product)
                 product_dict = DictSerializable.to_dict(product)
                 product_dict.update({"quantity": receipt_product_dict["quantity"]})
                 receipt_dict['sum'] = receipt_dict.get('sum', 0) + product_dict['quantity'] * product_dict["price"]
@@ -196,13 +193,10 @@ def account_get_receipts(data: dict):
         category = session.query(models.Category).filter_by(id=company.category_id).first()
         receipt_dict['category'] = DictSerializable.to_dict(category)
 
-        print(company)
-        print(category)
 
     session.close()
     if not len(result_dict.values()) == 0:
         result_dict["receipts"] = sorted(result_dict["receipts"], key=lambda i: i['id'], reverse=True)
-    print(result_dict)
     return result_dict
 
 
