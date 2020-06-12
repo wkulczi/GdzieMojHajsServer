@@ -251,7 +251,6 @@ def account_get_receipts_route():
         password = request.args.get("password")
         receipts = account_get_receipts(dict({"login": login, "password": password}))
         print(account_get_receipts(dict({"login": login, "password": password})))
-        print("DUPA")
 
         return Response(json.dumps(receipts), status=200)
 

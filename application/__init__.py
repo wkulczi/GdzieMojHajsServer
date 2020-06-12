@@ -18,20 +18,23 @@ def create_app():
         db.create_all()
         db.session.commit()
         Session.configure(bind=db.engine)
-        insert_data()
+        insert_db_data()
         ma.init_app(app)
         return app
 
 
-def insert_data():
+def insert_db_data(): # inserts data from insert_data.sql if table is empty
     file = open('database/initial_scripts/insert_data.sql', 'r')
     lines = ""
 
     for line in file.readlines():
         lines += line
-        if line == "\n":
-            sql = "".join(lines)
-            db.session.execute(sql)
-            db.session.commit()
-            # print("###\n"+lines+"###\n")
+        if line == "\n" or "":
+            table_name = lines.split(' ')[2]
+            print(table_name)
+            if db.session.execute(f"SELECT * from {table_name}").first() is None:
+                sql = "".join(lines)
+                db.session.execute(sql)
+                db.session.commit()
+                # print("###\n" + lines + "###\n")
             lines = ""

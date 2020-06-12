@@ -2,12 +2,11 @@ import datetime
 import json
 
 from flask import Response, jsonify
-
-from application import models, insert_data
-from application import Session
-
 from sqlalchemy import select, extract
 from sqlalchemy.sql import func
+
+from application import Session
+from application import models
 
 
 class ServerLogicException(Exception):
@@ -193,7 +192,6 @@ def account_get_receipts(data: dict):
         category = session.query(models.Category).filter_by(id=company.category_id).first()
         receipt_dict['category'] = DictSerializable.to_dict(category)
 
-
     session.close()
     if not len(result_dict.values()) == 0:
         result_dict["receipts"] = sorted(result_dict["receipts"], key=lambda i: i['id'], reverse=True)
@@ -248,7 +246,7 @@ def monthly_left(login: dict):
 
     monthly_limit = \
         session.execute(select([models.Account.monthlyLimit]).where(models.Account.id == account.id)).first()[0]
-    print(monthly_limit-sum)
+    print(monthly_limit - sum)
     return jsonify(monthly_limit - sum)
 
 

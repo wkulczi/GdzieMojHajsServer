@@ -1,7 +1,6 @@
-import datetime
+from marshmallow import fields, Schema, post_load
 
 from application import db, ma
-from marshmallow import fields, Schema, post_load
 
 
 class Account(db.Model):
@@ -70,6 +69,7 @@ class Product(db.Model):
 
 class receipt_product(db.Model):
     __table_args__ = {'extend_existing': True}
+    # receipt_id = db.Column(db.Integer, db.ForeignKey('receipt.id', ondelete='CASCADE'),primary_key=True,)  # many to one with receipt
     receipt_id = db.Column(db.Integer, db.ForeignKey('receipt.id', ondelete='CASCADE'))  # many to one with receipt
     product_id = db.Column(db.Integer, db.ForeignKey('product.id', ondelete='CASCADE'), primary_key=True,
                            nullable=False)  # many to one with product
